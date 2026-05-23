@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Forca Vibrante | Música & Gradiente Animado</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    /* FUNDO COM GRADIENTE DINÂMICO ANIMADO */
+    body {
+      min-height: 100vh;
+      background: linear-gradient(45deg, #0f2027, #203a43, #2c5364, #1b2f3a, #42275a);
+      background-size: 400% 400%;
+      animation: gradientFlow 14s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', 'Segoe UI', 'Arial', sans-serif;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 0%; }
+      25% { background-position: 100% 50%; }
+      50% { background-position: 100% 100%; }
+      75% { background-position: 0% 50%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    /* Efeito de partículas sutis no fundo */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 40%, rgba(255,255,200,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: floatGlow 12s infinite alternate;
+    }
+
+    @keyframes floatGlow {
+      0% { opacity: 0.3; transform: scale(1); }
+      100% { opacity: 0.7; transform: scale(1.05); }
+    }
+
+    /* Container principal (vidro) */
+    .game-glass {
+      background: rgba(20, 25, 45, 0.5);
+      backdrop-filter: blur(14px) saturate(180%);
+      border-radius: 2.5rem;
+      padding: 1.8rem 2rem 2rem;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+      transition: transform 0.3s ease;
+      z-index: 2;
+      border: 1px solid rgba(255, 245, 200, 0.3);
+    }
+
+    .game-glass:hover {
+      transform: scale(1.01);
+      box-shadow: 0 30px 55px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      font-weight: 700;
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #FFE6B0, #D6A9FF, #7DF9FF);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #dddddd;
+      margin-bottom: 1rem;
+      border-bottom: 1px dashed rgba(255,215,150,0.5);
+      display: inline-block;
+      width: auto;
+      padding-bottom: 4px;
+    }
+
+    /* Forca estilizada */
+    #forca {
+      width: 180px;
+      height: 200px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+      filter: drop-shadow(0 0 6px rgba(0,0,0,0.4));
+    }
+    .parte {
+      position: absolute;
+      background: #FFE5B4;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 0 2px #ffc285;
+    }
+    .base { width: 100px; height: 8px; bottom: 0; left: 25px; background: #d9b48b; border-radius: 4px; }
+    .poste { width: 8px; height: 200px; left: 25px; bottom: 0; background: #c29a6b; border-radius: 4px; }
+    .barra { width: 80px; height: 8px; top: 0; left: 25px; background: #e0b082; border-radius: 4px; }
+    .corda { width: 3px; height: 28px; top: 8px; left: 98px; background: #f5e2c1; border-radius: 2px; }
+    .cabeca { width: 32px; height: 32px; border-radius: 50%; border: 3px solid #FFE3B0; background: transparent; top: 36px; left: 83px; opacity: 0; box-shadow: 0 0 4px #ffbc6e; }
+    .corpo { width: 4px; height: 55px; background: #FFE3B0; top: 68px; left: 97px; opacity: 0; }
+    .braco-esq { width: 35px; height: 4px; background: #FFE3B0; top: 85px; left: 62px; transform-origin: right; transform: rotate(-35deg); opacity: 0; border-radius: 2px; }
+    .braco-dir { width: 35px; height: 4px; background: #FFE3B0; top: 85px; left: 100px; transform-origin: left; transform: rotate(35deg); opacity: 0; border-radius: 2px; }
+    .perna-esq { width: 38px; height: 4px; background: #FFE3B0; top: 123px; left: 60px; transform-origin: right; transform: rotate(40deg); opacity: 0; border-radius: 2px; }
+    .perna-dir { width: 38px; height: 4px; background: #FFE3B0; top: 123px; left: 99px; transform-origin: left; transform: rotate(-40deg); opacity: 0; border-radius: 2px; }
+
+    /* palavra */
+    #palavra-container {
+      font-size: 2rem;
+      letter-spacing: 0.8rem;
+      text-align: center;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.8rem;
+      border-radius: 2rem;
+      margin: 1rem 0;
+      font-family: monospace;
+      color: #fff9e0;
+      text-shadow: 0 0 5px #ffb86b;
+    }
+
+    /* teclado virtual */
+    .keyboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      margin: 1.5rem 0;
+    }
+    .key-btn {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 220, 150, 0.6);
+      width: 52px;
+      height: 52px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #fff4e0;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    }
+    .key-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      background: rgba(255, 200, 100, 0.8);
+      color: #1f2a2e;
+      box-shadow: 0 8px 12px rgba(0,0,0,0.3);
+      border-color: gold;
+    }
+    .key-btn:active:not(:disabled) {
+      transform: translateY(2px);
+    }
+    .key-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+      transform: none;
+    }
+
+    /* placar e mensagem */
+    .score-board {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 20px;
+      border-radius: 60px;
+      margin: 12px 0;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    #message {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin: 12px 0;
+      animation: pulseMsg 0.8s ease;
+      min-height: 3rem;
+      color: #FFE484;
+      text-shadow: 0 0 4px #000;
+    }
+    @keyframes pulseMsg {
+      0% { transform: scale(0.9); opacity: 0; }
+      80% { transform: scale(1.05);}
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Controles da música */
+    .music-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      border-radius: 60px;
+      padding: 6px 18px;
+      margin-top: 1rem;
+      border: 1px solid rgba(255,220,150,0.5);
+    }
+    .music-btn {
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      filter: drop-shadow(0 0 3px white);
+      transition: 0.2s;
+      color: #fff2cf;
+    }
+    .music-btn:hover {
+      transform: scale(1.1);
+      color: #ffce7a;
+    }
+    input[type="range"] {
+      width: 120px;
+      height: 4px;
+      -webkit-appearance: none;
+      background: #ffe0a3;
+      border-radius: 10px;
+    }
+    input[type="range"]:focus {
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #ffb347;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 5px #ffd58c;
+    }
+    .restart-btn {
+      background: linear-gradient(145deg, #4c9f70, #2d6a4f);
+      border: none;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: white;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      width: 100%;
+      box-shadow: 0 5px 0 #1b3b2a;
+    }
+    .restart-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #1b3b2a;
+    }
+    footer {
+      font-size: 0.7rem;
+      text-align: center;
+      margin-top: 18px;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 550px) {
+      .game-glass { padding: 1.2rem; }
+      .key-btn { width: 45px; height: 45px; font-size: 1.4rem; }
+      #palavra-container { font-size: 1.5rem; letter-spacing: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-glass">
+  <h1>🎭 JOGO DA FORCA 🎭</h1>
+  <div style="text-align:center;"><span class="sub">✦ gradiente vivo | desafio musical ✦</span></div>
+
+  <!-- forca desenhada -->
+  <div id="forca">
+    <div class="parte base"></div>
+    <div class="parte poste"></div>
+    <div class="parte barra"></div>
+    <div class="parte corda"></div>
+    <div class="parte cabeca"></div>
+    <div class="parte corpo"></div>
+    <div class="parte braco-esq"></div>
+    <div class="parte braco-dir"></div>
+    <div class="parte perna-esq"></div>
+    <div class="parte perna-dir"></div>
+  </div>
+
+  <div id="palavra-container"></div>
+
+  <!-- teclado virtual -->
+  <div id="keyboard-container" class="keyboard"></div>
+
+  <div class="score-board">
+    <span>🏆 SCORE: <span id="score">0</span></span>
+    <span>⭐ RECORDE: <span id="best">0</span></span>
+    <span>❌ ERROS: <span id="errors-count">0</span>/6</span>
+  </div>
+  <div id="message"></div>
+
+  <button id="restart-btn" class="restart-btn">🔄 REINICIAR JOGO</button>
+
+  <!-- player de música com controle -->
+  <div class="music-bar">
+    <button id="playMusicBtn" class="music-btn" title="Ligar música ambiente">🎵</button>
+    <button id="stopMusicBtn" class="music-btn" title="Pausar">⏸️</button>
+    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.35">
+    <span style="font-size: 12px;">🔊 volume</span>
+  </div>
+  <footer>🎧 Música ambiente suave · Fundo gradiente animado</footer>
+</div>
+
+<script>
+  // ---------- PALAVRAS E ESTADO DO JOGO ----------
+  const palavras = [
+    "PROGRAMACAO", "JAVASCRIPT", "FORCA", "INOVACAO", "HTML", "CSS", 
+    "ANIMACAO", "DESENVOLVIMENTO", "TECNOLOGIA", "CRIATIVIDADE", 
+    "GRADIENTE", "MUSICA", "DESAFIO", "VITORIA"
+  ];
+  let palavraSecreta = "";
+  let letrasCorretas = [];
+  let letrasErradas = [];
+  let pontuacao = 0;
+  let melhorPontuacao = localStorage.getItem('forcaBestScore') || 0;
+  let jogoAtivo = true;
+
+  // Elementos DOM
+  const palavraContainer = document.getElementById('palavra-container');
+  const keyboardDiv = document.getElementById('keyboard-container');
+  const scoreSpan = document.getElementById('score');
+  const bestSpan = document.getElementById('best');
+  const errorsSpan = document.getElementById('errors-count');
+  const messageDiv = document.getElementById('message');
+  const restartBtn = document.getElementById('restart-btn');
+
+  // Partes do corpo da forca
+  const partesCorpo = ['cabeca', 'corpo', 'braco-esq', 'braco-dir', 'perna-esq', 'perna-dir'];
+
+  // Inicializa melhor pontuação
+  bestSpan.innerText = melhorPontuacao;
+
+  // ---------- FUNÇÕES PRINCIPAIS DO JOGO ----------
+  function carregarNovaPalavra() {
+    const nova = palavras[Math.floor(Math.random() * palavras.length)];
+    palavraSecreta = nova;
+    letrasCorretas = [];
+    letrasErradas = [];
+    jogoAtivo = true;
+    atualizarInterfacePalavra();
+    atualizarForcaVisual();
+    atualizarPlacar();
+    habilitarTeclado(true);
+    messageDiv.innerHTML = "🎯 Boa sorte! Escolha uma letra.";
+  }
+
+  function atualizarInterfacePalavra() {
+    let display = "";
+    for (let letra of palavraSecreta) {
+      if (letrasCorretas.includes(letra)) {
+        display += letra + " ";
+      } else {
+        display += "_ ";
+      }
+    }
+    palavraContainer.innerText = display.trim();
+  }
+
+  function atualizarForcaVisual() {
+    const erros = letrasErradas.length;
+    errorsSpan.innerText = erros;
+    // Mostra/esconde partes do corpo
+    partesCorpo.forEach((parte, index) => {
+      const elemento = document.querySelector(`.${parte}`);
+      if (elemento) {
+        elemento.style.opacity = erros > index ? "1" : "0";
+      }
+    });
+  }
+
+  function atualizarPlacar() {
+    // Cálculo do score: +15 por letra correta, -5 por erro, bônus por acerto completo
+    // O score é dinâmico baseado em acertos e erros (já guardado)
+    scoreSpan.innerText = pontuacao;
+    if (pontuacao > melhorPontuacao) {
+      melhorPontuacao = pontuacao;
+      bestSpan.innerText = melhorPontuacao;
+      localStorage.setItem('forcaBestScore', melhorPontuacao);
+    }
+  }
+
+  function tentarLetra(letra) {
+    if (!jogoAtivo) return false;
+    let letraUpper = letra.toUpperCase();
+    // já foi usada?
+    if (letrasCorretas.includes(letraUpper) || letrasErradas.includes(letraUpper)) {
+      messageDiv.innerHTML = "⚠️ Você já tentou essa letra!";
+      return false;
+    }
+
+    if (palavraSecreta.includes(letraUpper)) {
+      // ACERTOU
+      letrasCorretas.push(letraUpper);
+      pontuacao += 15;
+      messageDiv.innerHTML = `✅ Ótimo! A letra "${letraUpper}" existe! +15`;
+      atualizarInterfacePalavra();
+      atualizarPlacar();
+      // verifica se ganhou
+      const todasLetras = palavraSecreta.split('').every(l => letrasCorretas.includes(l));
+      if (todasLetras) {
+        finalizarJogo(true);
+      }
+    } else {
+      // ERROU
+      letrasErradas.push(letraUpper);
+      pontuacao -= 7;
+      if (pontuacao < 0) pontuacao = 0;
+      messageDiv.innerHTML = `❌ Que pena! A letra "${letraUpper}" não está na palavra. -7`;
+      atualizarForcaVisual();
+      atualizarPlacar();
+      
+      if (letrasErradas.length >= 6) {
+        finalizarJogo(false);
+      } else {
+        // feedback visual de erro
+      }
+    }
+    atualizarInterfacePalavra();
+    return true;
+  }
+
+  function finalizarJogo(vitoria) {
+    jogoAtivo = false;
+    if (vitoria) {
+      const bonus = 50;
+      pontuacao += bonus;
+      atualizarPlacar();
+      messageDiv.innerHTML = `🎉✨ PARABÉNS! Você acertou a palavra "${palavraSecreta}"! ✨🎉 <br> +${bonus} pontos!`;
+      // efeito confete simbólico
+      criarConfeteLeve();
+    } else {
+      messageDiv.innerHTML = `💀 GAME OVER! A palavra era "${palavraSecreta}". 💀<br>Clique em Reiniciar para nova tentativa.`;
+    }
+    habilitarTeclado(false);
+  }
+
+  // Habilitar/desabilitar botões do teclado virtual
+  function habilitarTeclado(ativo) {
+    const botoes = document.querySelectorAll('.key-btn');
+    botoes.forEach(btn => {
+      if (ativo && !btn.disabled) {
+        // mantém os que não foram clicados ainda habilitados, mas os já usados continuam disabled.
+        // para não reabilitar letras já usadas, gerenciamos via dataset.
+        const letraBtn = btn.getAttribute('data-letra');
+        if (letrasCorretas.includes(letraBtn) || letrasErradas.includes(letraBtn)) {
+          btn.disabled = true;
+        } else {
+          btn.disabled = false;
+        }
+      } else if (!ativo) {
+        btn.disabled = true;
+      }
+    });
+  }
+
+  // Reiniciar completamente
+  function reiniciarJogo() {
+    carregarNovaPalavra();
+    pontuacao = 0;
+    atualizarPlacar();
+    // resetar todos os botões do teclado
+    gerarTecladoVirtual(); // recria o teclado do zero (mais fácil)
+    jogoAtivo = true;
+    messageDiv.innerHTML = "🌟 Novo jogo! Adivinhe a palavra. 🌟";
+    atualizarForcaVisual();
+    habilitarTeclado(true);
+  }
+
+  // Criação do teclado virtual A-Z
+  function gerarTecladoVirtual() {
+    keyboardDiv.innerHTML = '';
+    for (let i = 65; i <= 90; i++) {
+      const letra = String.fromCharCode(i);
+      const btn = document.createElement('button');
+      btn.innerText = letra;
+      btn.classList.add('key-btn');
+      btn.setAttribute('data-letra', letra);
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (jogoAtivo && !btn.disabled) {
+          tentarLetra(letra);
+          btn.disabled = true;
+          // Se o jogo terminou, os botões já ficam desabilitados globalmente
+          if (!jogoAtivo) habilitarTeclado(false);
+        }
+      });
+      keyboardDiv.appendChild(btn);
+    }
+  }
+
+  // Pequeno confete quando vence
+  function criarConfeteLeve() {
+    // cria alguns elementos flutuantes
+    for (let i = 0; i < 30; i++) {
+      const conf = document.createElement('div');
+      conf.innerText = ['🎉', '✨', '⭐', '🎈', '🏆'][Math.floor(Math.random() * 5)];
+      conf.style.position = 'fixed';
+      conf.style.left = Math.random() * 100 + '%';
+      conf.style.top = '0px';
+      conf.style.fontSize = (Math.random() * 20 + 12) + 'px';
+      conf.style.pointerEvents = 'none';
+      conf.style.zIndex = '999';
+      conf.style.opacity = '1';
+      conf.style.transition = 'all 1.8s ease-out';
+      document.body.appendChild(conf);
+      setTimeout(() => {
+        conf.style.top = '100vh';
+        conf.style.opacity = '0';
+        setTimeout(() => conf.remove(), 2000);
+      }, 50);
+    }
+  }
+
+  // ---------- MÚSICA DE FUNDO COM CONTROLE ----------
+  // Usar uma música ambiente calma e legal (domínio público / SoundHelix livre)
+  const audioElement = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
+  audioElement.loop = true;
+  audioElement.volume = 0.35; // volume inicial suave
+
+  // Controles
+  const playMusicBtn = document.getElementById('playMusicBtn');
+  const stopMusicBtn = document.getElementById('stopMusicBtn');
+  const volumeControl = document.getElementById('volumeControl');
+
+  let musicaTocando = false;
+
+  // Para iniciar a música apenas com interação explícita (regras de navegador)
+  function iniciarMusica() {
+    if (!musicaTocando) {
+      audioElement.play().then(() => {
+        musicaTocando = true;
+        playMusicBtn.style.opacity = '1';
+      }).catch(err => {
+        console.log("Autoplay bloqueado, mas o botão permite iniciar:", err);
+        messageDiv.innerHTML = "🎵 Clique no botão da música para ativar o som ambiente!";
+      });
+    }
+  }
+
+  function pausarMusica() {
+    if (musicaTocando) {
+      audioElement.pause();
+      musicaTocando = false;
+    } else {
+      audioElement.pause();
+    }
+  }
+
+  function definirVolume(val) {
+    let vol = parseFloat(val);
+    audioElement.volume = vol;
+    volumeControl.value = vol;
+  }
+
+  // Eventos de música com interação
+  playMusicBtn.addEventListener('click', () => {
+    iniciarMusica();
+  });
+  stopMusicBtn.addEventListener('click', () => {
+    pausarMusica();
+  });
+  volumeControl.addEventListener('input', (e) => {
+    definirVolume(e.target.value);
+  });
+
+  // Pré carregamento (apenas carrega metadados)
+  audioElement.load();
+
+  // Opcional: detectar clique em qualquer lugar para ativar música apenas se o usuário quiser, mas deixamos explícito.
+  // Mensagem de dica quando o jogo começar
+  setTimeout(() => {
+    if (!musicaTocando) {
+      messageDiv.innerHTML = "🎧 Ative a música ambiente com o botão 🎵 acima!";
+    }
+  }, 800);
+
+  // ---------- SUPORTE AO TECLADO FÍSICO ----------
+  function handleKeyPress(event) {
+    if (!jogoAtivo) return;
+    const key = event.key.toUpperCase();
+    if (/^[A-Z]$/.test(key)) {
+      event.preventDefault();
+      const botoes = document.querySelectorAll('.key-btn');
+      let botaoEncontrado = null;
+      for (let btn of botoes) {
+        if (btn.innerText === key && !btn.disabled) {
+          botaoEncontrado = btn;
+          break;
+        }
+      }
+      if (botaoEncontrado) {
+        botaoEncontrado.click();
+      } else {
+        // letra já usada ou inválida, apenas ignorar
+        if (letrasCorretas.includes(key) || letrasErradas.includes(key)) {
+          messageDiv.innerHTML = `🔁 Você já tentou "${key}"!`;
+        }
+      }
+    }
+  }
+  window.addEventListener('keydown', handleKeyPress);
+
+  // ---------- INICIALIZAÇÃO ----------
+  function inicializarJogo() {
+    gerarTecladoVirtual();
+    carregarNovaPalavra();
+    pontuacao = 0;
+    atualizarPlacar();
+    jogoAtivo = true;
+    messageDiv.innerHTML = "🎮 Clique nas letras ou digite no teclado! Música de fundo ambiente.";
+  }
+
+  restartBtn.addEventListener('click', () => {
+    reiniciarJogo();
+  });
+
+  inicializarJogo();
+</script>
+</body>
+</html>
